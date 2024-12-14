@@ -29,6 +29,7 @@ pub mod voting {
     ) -> Result<()> {
         let candidate = &mut ctx.accounts.candidate;
         candidate.candidate_name = candidate_name;
+        candidate.candidate_votes = 0;
         Ok(())
     }
 }
@@ -84,7 +85,7 @@ pub struct Poll {
 #[account]
 #[derive(InitSpace)]
 pub struct Candidate {
-    #[max_len(280)]
+    #[max_len(32)]
     pub candidate_name: String,
     pub candidate_votes: u64,
 }
