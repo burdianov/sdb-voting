@@ -69,4 +69,19 @@ describe("voting", () => {
     expect(crunchy.candidateName).to.equal("Crunchy");
     expect(crunchy.candidateVotes.toNumber()).to.equal(0);
   });
+
+  it("votes", async () => {
+    await votingProgram.methods.vote(new BN(1), "Smooth",).rpc();
+
+    const [smoothAddress] = PublicKey.findProgramAddressSync(
+      [
+        new BN(1).toBuffer("le", 8),
+        Buffer.from("Smooth")
+      ],
+      votingProgram.programId
+    );
+
+    const smooth = await votingProgram.account.candidate.fetch(smoothAddress);
+    expect(smooth.candidateVotes.toNumber()).to.equal(1);
+  });
 });
