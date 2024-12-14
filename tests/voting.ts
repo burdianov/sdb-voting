@@ -9,7 +9,11 @@ import { expect } from "chai";
 describe("voting", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const votingProgram = anchor.workspace.Voting as Program<Voting>;
+  let votingProgram;
+
+  beforeEach(async () => {
+    votingProgram = anchor.workspace.Voting as Program<Voting>;
+  });
 
   it("Initialize poll!", async () => {
     const date = new Date(Date.UTC(2028, 11, 24, 15, 0, 0));
@@ -35,5 +39,34 @@ describe("voting", () => {
     expect(poll.description).to.equal("What is your favorite type of peanut butter?");
     expect(poll.pollId.toNumber()).to.equal(1);
     expect(poll.pollStart.toNumber()).to.be.lessThan(poll.pollEnd.toNumber());
+  });
+
+  it("Initialize candidate!", async () => {
+    await votingProgram.methods.initializeCandidate(new BN(1), "Smooth").rpc();
+    await votingProgram.methods.initializeCandidate(new BN(1), "Crunchy").rpc();
+
+    const [smoothAddress] = PublicKey.findProgramAddressSync(
+      [
+        new BN(1).toBuffer("le", 8),
+        Buffer.from("Smooth")
+      ],
+      votingProgram.programId
+    );
+
+    const smooth = await votingProgram.account.candidate.fetch(smoothAddress);
+    expect(smooth.candidateName).to.equal("Smooth");
+    expect(smooth.candidateVotes.toNumber()).to.equal(0);
+
+    const [crunchyAddress] = PublicKey.findProgramAddressSync(
+      [
+        new BN(1).toBuffer("le", 8),
+        Buffer.from("Crunchy")
+      ],
+      votingProgram.programId
+    );
+
+    const crunchy = await votingProgram.account.candidate.fetch(crunchyAddress);
+    expect(crunchy.candidateName).to.equal("Crunchy");
+    expect(crunchy.candidateVotes.toNumber()).to.equal(0);
   });
 });

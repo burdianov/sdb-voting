@@ -22,7 +22,7 @@ pub mod voting {
         Ok(())
     }
 
-    pub fn initilize_candidate(
+    pub fn initialize_candidate(
         ctx: Context<InitializeCandidate>,
         _poll_id: u64,
         candidate_name: String,
